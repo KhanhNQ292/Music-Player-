@@ -9,7 +9,7 @@
     box-sizing: inherit;
   }
   body {
-    background: url(./img/0812_wp4676582-4k-pc-wallpapers.jpg);
+    background: url(./assets/img/0812_wp4676582-4k-pc-wallpapers.jpg);
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
@@ -20,6 +20,7 @@
   html {
     box-sizing: border-box;
     font-family: "Poppins", sans-serif;
+    scroll-behavior: smooth;
     
   }
   
