@@ -2,7 +2,7 @@
 * 1. Render songs       => done
 * 2. Scroll top         => done
 * 3. Play/Pause/ seek   => done
-* 4. CD rotare
+* 4. CD rotare          => done
 * 5. Next/previous
 * 6. Random
 * 7. Next/repeat
@@ -11,6 +11,17 @@
 */
 const $ = document.querySelector.bind(document)
 const $$ = document.querySelectorAll.bind(document)
+
+const playBtn = $('.btn-toggle-play')
+const player = $('.player')
+const cd = $('.cd')
+const cdWidth = cd.offsetWidth
+const heading = $('header h2')
+const cdThumb = $('.cd-thumb')
+const audio = $('#audio')
+const progress = $('#progress')
+const nextBtn = $('.btn-next')
+const prevBtn = $('.btn-prev')
 
 
 const app = {
@@ -94,9 +105,19 @@ const app = {
 
     // handle events
     handleEvents: function () {
-        const cd = $('.cd')
-        const cdWidth = cd.offsetWidth
+        
 
+        // xử lí cd quay
+        const cdThumbAnimate = cdThumb.animate([
+            { transform: 'rotate(360deg)'}
+
+        ],
+        {
+            duration: 10000, // 10 seconds
+            iteration: Infinity // loop ? 
+        })
+        cdThumbAnimate.pause()
+        
         // Xử lí thu phòng CD
         document.onscroll = function () {
             // console.log(window.scrollY);
@@ -109,8 +130,6 @@ const app = {
         }
 
         // Xử lí play/pause 
-        const playBtn = $('.btn-toggle-play')
-        const player = $('.player')
         const _this = this
         playBtn.onclick = () => {
             if (_this.isPlaying) {
@@ -123,11 +142,13 @@ const app = {
         audio.onplay = () => {
             _this.isPlaying = true
             player.classList.add('playing')
+            cdThumbAnimate.play()
         }
         // Pause
         audio.onpause = () => {
             _this.isPlaying = false
             player.classList.remove('playing')
+            cdThumbAnimate.pause()
         }
 
         // Cach 2: 
@@ -143,9 +164,7 @@ const app = {
         //     }
         // }
 
-
         // When time of song changes
-        const progress = $('#progress')
         audio.ontimeupdate = () => {
             if (audio.duration) {
                 const progessPercent = Math.floor(audio.currentTime / audio.duration * 100)
@@ -154,22 +173,43 @@ const app = {
         }
 
         // Rewind Song's Progress
-        progress.onchange = (e) => {
-            const seekTime = (audio.duration / 100) *  e.target.value
+        progress.oninput = (e) => {
+            const seekTime = (audio.duration / 100) * e.target.value
             audio.currentTime = seekTime
         }
 
+        // When Next/Prev song
+        nextBtn.onclick = () => {
+            _this.nextSong()
+            audio.play()
+        }
+        prevBtn.onclick = () => {
+            _this.prevSong()
+            audio.play()
+        }
     },
 
     loadCurrentSong: function () {
-        const heading = $('header h2')
-        const cdThumb = $('.cd-thumb')
-        const audio = $('#audio')
 
         heading.textContent = this.currentSong.name;
         cdThumb.style.backgroundImage = `url('${this.currentSong.image}')`
         audio.src = this.currentSong.path
+    },
 
+    
+    nextSong: function () {
+        this.currentIndex++
+        if (this.currentIndex >= this.songs.length) {
+            this.currentIndex = 0
+        }
+        this.loadCurrentSong()
+    },
+    prevSong: function () {
+        this.currentIndex--
+        if (this.currentIndex < 0) {
+            this.currentIndex = this.songs.length - 1
+        }
+        this.loadCurrentSong()
     },
 
 
