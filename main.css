@@ -87,6 +87,11 @@
   }
   
   /* CONTROL */
+  .btn:hover{
+    background-color: rgb(221, 197, 197);
+    opacity: 0.8;
+    border-radius: 50%;
+  }
   .control {
     display: flex;
     align-items: center;

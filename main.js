@@ -1,7 +1,7 @@
-/*
-* 1. Render songs
-* 2. Scroll top
-* 3. Play/Pause/ seek
+/* Check HTML Audio/Video on W3school
+* 1. Render songs       => done
+* 2. Scroll top         => done
+* 3. Play/Pause/ seek   => done
 * 4. CD rotare
 * 5. Next/previous
 * 6. Random
@@ -14,7 +14,11 @@ const $$ = document.querySelectorAll.bind(document)
 
 
 const app = {
-    songs : [
+    // Cho chỉ mảng = 0 trc 
+    currentIndex: 0,
+    isPlaying: false,
+
+    songs: [
         {
             name: 'SOFAR',
             singer: 'Binz',
@@ -56,7 +60,7 @@ const app = {
             singer: 'Binz',
             path: './assets/music/SOFAR-Binz.mp3',
             image: './assets/img/0812_wp4676582-4k-pc-wallpapers.jpg'
-        }
+        },
     ],
     render: function () {
         const htmls = this.songs.map(song => {
@@ -78,25 +82,111 @@ const app = {
         $('.playlist').innerHTML = htmls.join('');
     },
 
+
+    // get currentSong
+    defindProperties: function () {
+        Object.defineProperty(this, 'currentSong', {
+            get: function () {
+                return this.songs[this.currentIndex]
+            }
+        })
+    },
+
     // handle events
     handleEvents: function () {
         const cd = $('.cd')
         const cdWidth = cd.offsetWidth
 
+        // Xử lí thu phòng CD
         document.onscroll = function () {
             // console.log(window.scrollY);
             const scrollTop = window.scrollY || document.documentElement.scrollTop
             const newCdwitdth = cdWidth - scrollTop
 
-
+            // cd width > 0 or cd wỉdth = 0
             cd.style.width = newCdwitdth > 0 ? newCdwitdth + 'px' : 0
-
+            cd.style.opacity = newCdwitdth / cdWidth
         }
+
+        // Xử lí play/pause 
+        const playBtn = $('.btn-toggle-play')
+        const player = $('.player')
+        const _this = this
+        playBtn.onclick = () => {
+            if (_this.isPlaying) {
+                audio.pause()
+            } else {
+                audio.play()
+            }
+        }
+        // Playing
+        audio.onplay = () => {
+            _this.isPlaying = true
+            player.classList.add('playing')
+        }
+        // Pause
+        audio.onpause = () => {
+            _this.isPlaying = false
+            player.classList.remove('playing')
+        }
+
+        // Cach 2: 
+        // playBtn.onclick = () => {
+        //     if (_this.isPlaying) {
+        //         _this.isPlaying = false
+        //         audio.pause()
+        //         player.classList.remove('playing')
+        //     } else {
+        //         _this.isPlaying = true
+        //         audio.play()
+        //         player.classList.add('playing')
+        //     }
+        // }
+
+
+        // When time of song changes
+        const progress = $('#progress')
+        audio.ontimeupdate = () => {
+            if (audio.duration) {
+                const progessPercent = Math.floor(audio.currentTime / audio.duration * 100)
+                progress.value = progessPercent
+            }
+        }
+
+        // Rewind Song's Progress
+        progress.onchange = (e) => {
+            const seekTime = (audio.duration / 100) *  e.target.value
+            audio.currentTime = seekTime
+        }
+
     },
 
+    loadCurrentSong: function () {
+        const heading = $('header h2')
+        const cdThumb = $('.cd-thumb')
+        const audio = $('#audio')
+
+        heading.textContent = this.currentSong.name;
+        cdThumb.style.backgroundImage = `url('${this.currentSong.image}')`
+        audio.src = this.currentSong.path
+
+    },
+
+
+
     start: function () {
-        this.render();
+        // Định nghĩa các thuộc tính cho object
+        this.defindProperties()
+
+        // Lắng nghe + xử lí các sự kiện
         this.handleEvents();
+
+        // Load 1st song'in4 into UI when load app
+        this.loadCurrentSong();
+
+        // Render playlist
+        this.render();
+
     }
 }
 app.start(); 
