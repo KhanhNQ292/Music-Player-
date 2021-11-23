@@ -211,7 +211,6 @@ const app = {
             }
             audio.play()
         }
-
     },
 
     // FUNCTIONS 
