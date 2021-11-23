@@ -22,12 +22,14 @@ const audio = $('#audio')
 const progress = $('#progress')
 const nextBtn = $('.btn-next')
 const prevBtn = $('.btn-prev')
+const randomBtn = $('.btn-random')
 
 
 const app = {
     // Cho chỉ mảng = 0 trc 
     currentIndex: 0,
     isPlaying: false,
+    isRandom: false,
 
     songs: [
         {
@@ -105,19 +107,17 @@ const app = {
 
     // handle events
     handleEvents: function () {
-        
-
         // xử lí cd quay
         const cdThumbAnimate = cdThumb.animate([
-            { transform: 'rotate(360deg)'}
+            { transform: 'rotate(360deg)' }
 
         ],
-        {
-            duration: 10000, // 10 seconds
-            iteration: Infinity // loop ? 
-        })
+            {
+                duration: 10000, // 10 seconds
+                iteration: Infinity // loop ? 
+            })
         cdThumbAnimate.pause()
-        
+
         // Xử lí thu phòng CD
         document.onscroll = function () {
             // console.log(window.scrollY);
@@ -180,23 +180,48 @@ const app = {
 
         // When Next/Prev song
         nextBtn.onclick = () => {
-            _this.nextSong()
+            if (_this.isRandom) {
+                _this.randomSong()
+            } else {
+                _this.nextSong()
+            }
             audio.play()
         }
         prevBtn.onclick = () => {
-            _this.prevSong()
+            if (_this.isRandom) {
+                _this.randomSong()
+            } else {
+                _this.prevSong()
+            }
             audio.play()
         }
+
+        // random songs
+        randomBtn.onclick = (e) => {
+            _this.isRandom = !_this.isRandom
+            randomBtn.classList.toggle('active', _this.isRandom)
+        }
+
+        // next when audio ended
+        audio.onended = () => {
+            if (_this.isRandom) {
+                _this.randomSong()
+            } else {
+                _this.nextSong()
+            }
+            audio.play()
+        }
+
     },
 
+    // FUNCTIONS 
     loadCurrentSong: function () {
-
         heading.textContent = this.currentSong.name;
         cdThumb.style.backgroundImage = `url('${this.currentSong.image}')`
         audio.src = this.currentSong.path
     },
 
-    
+
     nextSong: function () {
         this.currentIndex++
         if (this.currentIndex >= this.songs.length) {
@@ -211,9 +236,20 @@ const app = {
         }
         this.loadCurrentSong()
     },
+    randomSong: function () {
+        let newIndex
+        do {
+            newIndex = Math.floor(Math.random() * this.songs.length)
+        }
+        while (newIndex === this.currentIndex)
+
+        this.currentIndex = newIndex
+        this.loadCurrentSong()
+    },
 
 
 
+    // START 
     start: function () {
         // Định nghĩa các thuộc tính cho object
         this.defindProperties()
