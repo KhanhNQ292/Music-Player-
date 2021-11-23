@@ -3,11 +3,12 @@
 * 2. Scroll top         => done
 * 3. Play/Pause/ seek   => done
 * 4. CD rotare          => done
-* 5. Next/previous
-* 6. Random
-* 7. Next/repeat
-* 8.
-* 9.
+* 5. Next/previous      => done
+* 6. Random             => done
+* 7. Next/repeat when ended => done
+* 8. Active Song            => done
+* 9. Scroll Active song into view
+*10. 
 */
 const $ = document.querySelector.bind(document)
 const $$ = document.querySelectorAll.bind(document)
@@ -23,6 +24,7 @@ const progress = $('#progress')
 const nextBtn = $('.btn-next')
 const prevBtn = $('.btn-prev')
 const randomBtn = $('.btn-random')
+const repeatBtn = $('.btn-repeat')
 
 
 const app = {
@@ -30,6 +32,7 @@ const app = {
     currentIndex: 0,
     isPlaying: false,
     isRandom: false,
+    isReapeat: false,
 
     songs: [
         {
@@ -76,9 +79,9 @@ const app = {
         },
     ],
     render: function () {
-        const htmls = this.songs.map(song => {
+        const htmls = this.songs.map((song, index) => {
             return `
-                <div class="song">
+                <div class="song ${index === this.currentIndex ? 'active' : ''}">
                     <div class="thumb" style="background-image: url('${song.image}')">
                     </div>
                     <div class="body">
@@ -138,6 +141,16 @@ const app = {
                 audio.play()
             }
         }
+        // play/pause with Space
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === ' ') {
+                audio.play()
+            }
+            if (_this.isPlaying && event.key === ' ') {
+                audio.pause()
+            } 
+        })
         // Playing
         audio.onplay = () => {
             _this.isPlaying = true
@@ -186,6 +199,8 @@ const app = {
                 _this.nextSong()
             }
             audio.play()
+            _this.render()
+            _this.scrollToActiveSong()
         }
         prevBtn.onclick = () => {
             if (_this.isRandom) {
@@ -194,6 +209,8 @@ const app = {
                 _this.prevSong()
             }
             audio.play()
+            _this.render()
+            _this.scrollToActiveSong()
         }
 
         // random songs
@@ -204,16 +221,35 @@ const app = {
 
         // next when audio ended
         audio.onended = () => {
-            if (_this.isRandom) {
-                _this.randomSong()
+            if (_this.isReapeat) {
+                audio.play()
             } else {
-                _this.nextSong()
+                _this.randomSong()
             }
             audio.play()
+        }
+
+        // Repeat song
+        repeatBtn.onclick = (e) => {
+            _this.isReapeat = !_this.isReapeat
+            repeatBtn.classList.toggle('active', _this.isReapeat)
+
         }
     },
 
     // FUNCTIONS 
+
+    scrollToActiveSong: function () {
+        setTimeout(() => {
+            $('.song.active').scrollIntoView(
+                {
+                    behavior: 'smooth', // Xác định hoạt ảnh
+                    block: 'nearest', // Xác định căn chỉnh theo chiều dọc
+                    inline: 'nearest'// Xác định căn theo chiều ngang
+                })
+        }, 500)
+    },
+
     loadCurrentSong: function () {
         heading.textContent = this.currentSong.name;
         cdThumb.style.backgroundImage = `url('${this.currentSong.image}')`
