@@ -34,8 +34,8 @@ const app = {
     // Cho chỉ mảng = 0 trc 
     currentIndex: 0,
     isPlaying: false,
+    isRepeat: false,
     isRandom: false,
-    isReapeat: false,
     config: JSON.parse(localStorage.getItem(PLAYER_STORAGE_KEY)) || {},
 
     songs: [
@@ -84,7 +84,7 @@ const app = {
     ],
 
     // setConfig
-    setConfig: function(key, value) {
+    setConfig: function (key, value) {
         this.config[key] = value;
         localStorage.setItem(PLAYER_STORAGE_KEY, JSON.stringify(this.config));
     },
@@ -229,21 +229,21 @@ const app = {
         // random songs
         randomBtn.onclick = (e) => {
             _this.isRandom = !_this.isRandom
-            _this.setConfig('isRandom',_this.isRandom)
+            _this.setConfig('isRandom', _this.isRandom)
             randomBtn.classList.toggle('active', _this.isRandom)
         }
 
 
         // Repeat song
         repeatBtn.onclick = (e) => {
-            _this.isReapeat = !_this.isReapeat
-            _this.setConfig('isReapeat',_this.isReapeat)
-            repeatBtn.classList.toggle('active', _this.isReapeat)
+            _this.isRepeat = !_this.isRepeat
+            _this.setConfig('isRepeat', _this.isRepeat)
+            repeatBtn.classList.toggle('active', _this.isRepeat)
 
         }
         // next when audio ended
         audio.onended = () => {
-            if (_this.isReapeat) {
+            if (_this.isRepeat) {
                 audio.play()
             } else {
                 _this.randomSong()
@@ -290,8 +290,8 @@ const app = {
     },
 
     loadConfig: function () {
-        this.isRandom = this.config.isRandom
         this.isRepeat = this.config.isRepeat
+        this.isRandom = this.config.isRandom
     },
 
 
@@ -324,6 +324,9 @@ const app = {
 
     // START 
     start: function () {
+
+        // Gán cấu hình từ config vào ứng dụng
+        this.loadConfig()
         // Định nghĩa các thuộc tính cho object
         this.defindProperties()
 
@@ -335,6 +338,10 @@ const app = {
 
         // Render playlist
         this.render();
+
+        // hiện thị setting repeat/random
+        randomBtn.classList.toggle('active', this.isRandom)
+        repeatBtn.classList.toggle('active', this.isRepeat)
 
     }
 }

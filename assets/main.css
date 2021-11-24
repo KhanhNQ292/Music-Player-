@@ -91,6 +91,7 @@
     background-color: rgb(231, 226, 226);
     opacity: 0.8;
     border-radius: 50%;
+    cursor: pointer;
   }
   .control {
     display: flex;
@@ -130,6 +131,12 @@
     opacity: 0.7;
     -webkit-transition: 0.2s;
     transition: opacity 0.2s;
+  }
+
+  .progress:hover {
+    cursor: pointer;
+    opacity: 1;
+    background-color: rgba(103, 166, 221, 0.319);
   }
   
   .progress::-webkit-slider-thumb {
