@@ -162,7 +162,7 @@
   }
   
   .song:active {
-    opacity: 0.;
+    opacity: 0.6;
   }
   
   .song.active .option,

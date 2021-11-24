@@ -25,6 +25,7 @@ const nextBtn = $('.btn-next')
 const prevBtn = $('.btn-prev')
 const randomBtn = $('.btn-random')
 const repeatBtn = $('.btn-repeat')
+const playlist = $('.playlist')
 
 
 const app = {
@@ -81,7 +82,8 @@ const app = {
     render: function () {
         const htmls = this.songs.map((song, index) => {
             return `
-                <div class="song ${index === this.currentIndex ? 'active' : ''}">
+                <div class="song ${index === this.currentIndex ? 'active' : ''}"
+                data-index = "${index}">
                     <div class="thumb" style="background-image: url('${song.image}')">
                     </div>
                     <div class="body">
@@ -95,7 +97,7 @@ const app = {
             `
         })
         // ko lap lai nen k can khai bao lai
-        $('.playlist').innerHTML = htmls.join('');
+        playlist.innerHTML = htmls.join('');
     },
 
 
@@ -149,7 +151,7 @@ const app = {
             }
             if (_this.isPlaying && event.key === ' ') {
                 audio.pause()
-            } 
+            }
         })
         // Playing
         audio.onplay = () => {
@@ -219,6 +221,13 @@ const app = {
             randomBtn.classList.toggle('active', _this.isRandom)
         }
 
+
+        // Repeat song
+        repeatBtn.onclick = (e) => {
+            _this.isReapeat = !_this.isReapeat
+            repeatBtn.classList.toggle('active', _this.isReapeat)
+
+        }
         // next when audio ended
         audio.onended = () => {
             if (_this.isReapeat) {
@@ -229,11 +238,22 @@ const app = {
             audio.play()
         }
 
-        // Repeat song
-        repeatBtn.onclick = (e) => {
-            _this.isReapeat = !_this.isReapeat
-            repeatBtn.classList.toggle('active', _this.isReapeat)
+        // Lắng nghe hành vi click vào playlist
+        playlist.onclick = (e) => {
+            const songNode = e.target.closest('.song:not(.active)')
 
+            if (songNode || e.target.closest('.option')) {
+                // Xử lí khi click vào song thì chuyển sang bài đó 
+                if (songNode) {
+                    // convert sang Number vì songNode.dataset.index => array
+                    _this.currentIndex = Number(songNode.dataset.index)
+                    _this.loadCurrentSong()
+                    _this.render()
+                    audio.play()
+                }
+                // Xử lí khi click vào song option
+
+            }
         }
     },
 
@@ -247,7 +267,7 @@ const app = {
                     block: 'nearest', // Xác định căn chỉnh theo chiều dọc
                     inline: 'nearest'// Xác định căn theo chiều ngang
                 })
-        }, 500)
+        }, 100)
     },
 
     loadCurrentSong: function () {
